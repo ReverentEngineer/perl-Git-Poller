@@ -28,13 +28,13 @@ sub add {
   }
 
   if (not defined $repo{watch}) {
-    die "No url provided.";
+    $repo{watch} = 'refs/heads/master';
   }
 
   if (not defined $repo{run}) {
-    die "No url provided.";
+    die "No run provided.";
   }
-
+  
   push @{$self->{repos}}, \%repo;
 }
 
