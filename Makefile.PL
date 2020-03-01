@@ -10,9 +10,8 @@ WriteMakefile(
     ( $ExtUtils::MakeMaker::VERSION >= 6.3002
         ? ( 'LICENSE' => 'perl' )
         : () ),
-    PL_FILES  => {
-      'bin/git_poll.PL' => 'bin/git_poll'
-    },
+    PL_FILES  => {},
+    EXE_FILES => ['bin/git_poll'],
     PREREQ_PM => {
         'Git'      => 0.01,
     },
@@ -20,3 +19,5 @@ WriteMakefile(
           'Test'    => 1.001014,
     },
 );
+
+tests => { TESTS => 't/*.t' };

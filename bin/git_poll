@@ -1,0 +1,64 @@
+#!/usr/bin/env perl
+
+use strict;
+use YAML qw(LoadFile);
+use Git;
+use File::Temp qw/tempdir/;
+use Env qw(HOME);
+
+=pod
+
+=head1 NAME
+
+git_poll - Polls git repositories and performs defined actions
+
+=head1 SYNOPSIS
+
+B<git_poll> config
+
+=head1 EXAMPLES
+
+The following is an example of a configuration file:
+
+  - url: https://github.com/ReverentEngineer/perl-Git-Poller
+    watch: refs/heads/master
+    run:
+      - perl Makefile.PL
+      - make test
+  - url: https://github.com/ReverentEngineer/perl-Git-Poller
+    watch: refs/tags/(.*)
+      - perl Makefile.PL
+      - make dist
+
+=head1 LICENSE
+
+This software is released under the MIT license.
+
+=head1 AUTHORS
+
+Jeff Caffrey-Hill <jeff@reverentengineer.com>
+
+=cut
+
+exit 0;
+my ($config) = @ARGV;
+my $cache_file = "$HOME/.cache/git_poll";
+
+if (not defined $config) {
+  print 'Usage: git_poll <config>';
+  exit 1;
+}
+
+my ($repos) = LoadFile($config)
+  or die("Could not open config file: $!");
+my @repos = @{ $repos };
+
+foreach (@repos) {
+  my %repo = %$_;
+  my $url = $repo{url};
+  my $watch = $repo{watch};
+  my $run = $repo{run};
+  my @run = @{ $run };
+  $watch = "refs/heads/master" if not defined $watch;
+  my $refs = Git::command("ls-remote", $url);
+}
