@@ -3,6 +3,7 @@
 use strict;
 use YAML qw(LoadFile);
 use Git;
+use Git::Poller;
 use File::Temp qw/tempdir/;
 use Env qw(HOME);
 
@@ -40,12 +41,11 @@ Jeff Caffrey-Hill <jeff@reverentengineer.com>
 
 =cut
 
-exit 0;
 my ($config) = @ARGV;
 my $cache_file = "$HOME/.cache/git_poll";
 
 if (not defined $config) {
-  print 'Usage: git_poll <config>';
+  print "Usage: git_poll <config>\n";
   exit 1;
 }
 
@@ -53,12 +53,11 @@ my ($repos) = LoadFile($config)
   or die("Could not open config file: $!");
 my @repos = @{ $repos };
 
+my $poller = Poller->new($cache_file);
+
 foreach (@repos) {
   my %repo = %$_;
-  my $url = $repo{url};
-  my $watch = $repo{watch};
-  my $run = $repo{run};
-  my @run = @{ $run };
-  $watch = "refs/heads/master" if not defined $watch;
-  my $refs = Git::command("ls-remote", $url);
+  $poller->add(%repo);
 }
+
+print($poller->poll());
