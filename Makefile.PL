@@ -14,6 +14,9 @@ WriteMakefile(
     EXE_FILES => ['bin/git_poll'],
     PREREQ_PM => {
         'Git'      => 0.01,
+        'IPC::Cmd' => 1.02,
+        'YAML'     => 1.24,
+        'Env'      => 1.04,
     },
     TEST_REQUIRES => {
           'Test'    => 1.001014,
