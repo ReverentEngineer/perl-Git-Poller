@@ -1,0 +1,5 @@
+Makefile.PL
+MANIFEST
+bin/git_poll.PL
+lib/Git/Poller.gm
+lib/Git/Poller/Cache.pm
