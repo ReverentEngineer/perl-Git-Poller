@@ -43,7 +43,10 @@ Jeff Caffrey-Hill <jeff@reverentengineer.com>
 
 my $daemon;
 my $config;
+my $interval = 300;
+
 GetOptions('config=s' => \$config,
+  'interval=i', \$interval,
   'daemon' => \$daemon)
   or die("Error in command line arguments");
 
@@ -65,4 +68,10 @@ foreach (@repos) {
   $poller->add(%repo);
 }
 
-print($poller->poll());
+$poller->poll();
+
+if ($daemon) {
+  # TODO: Keep pollng.
+  sleep $interval;
+  $poller->poll();
+}
