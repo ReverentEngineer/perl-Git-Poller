@@ -1,3 +1,9 @@
+=head1 NAME
+
+Git::Poller - Polls repository and performs actions.
+
+=cut
+
 package Poller;
 
 use strict;
@@ -9,15 +15,50 @@ use File::Temp qw/tempdir/;
 
 our $VERSION = 0.01;
 
+=head1 CONSTRUCTORS
+
+=over 4
+
+=item new ( OPTIONS )
+
+Constructs Git poller object.
+
+B<mailer> - The mailer object to handle mailing based on repository.
+
+B<cache> - The cache object to handle Git repository polling.
+
+=cut
+
 sub new {
   my $class = shift;
-  my $cache_file = shift;
-  my $obj = {};
-  $obj->{repos} = [];
-  $obj->{cache} = Cache->new($cache_file);
+  my %args = @_;
+
+  my $obj = {
+    repos => [],
+    cache => $args{cache},
+    mailer => $args{mailer},
+  };
   bless $obj, $class;
   return $obj;
 }
+
+=back
+
+=head1 METHODS
+
+=over 4
+
+=item add ( ARGUMENTS )
+
+Adds a repository to poll.
+
+B<url> - The url of the Git repository.
+
+B<watch> - Regex of refs to poll.
+ 
+B<run> - The commands to run upon change.
+
+=cut
 
 sub add {
   my $self = shift;
@@ -53,6 +94,7 @@ sub poll {
         my $tmpdir = tempdir();
         $output .= Git::command(["clone", $repo{url}, "$tmpdir"], STDERR => 0);
         chdir $tmpdir;
+        my $repo = Git->repository($tmpdir);
         for (@cmds) {
           my $buffer = "";
           my ($ok, $err, $fullbuf) = run(command => "$_", buffer => \$buffer);

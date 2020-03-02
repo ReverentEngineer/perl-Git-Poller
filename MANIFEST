@@ -3,3 +3,4 @@ MANIFEST
 bin/git_poll.PL
 lib/Git/Poller.gm
 lib/Git/Poller/Cache.pm
+lib/Git/Poller/Mailer.pm

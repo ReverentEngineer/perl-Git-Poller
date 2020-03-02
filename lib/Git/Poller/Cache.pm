@@ -1,7 +1,23 @@
+=head1 NAME
+
+Git::Poller::Cache - A Git poll cache object.
+
+=cut
 package Cache;
 
 use strict;
 use Env qw(HOME);
+
+=head1 CONSTRUCTORS
+
+=over 4
+
+=item new ( [ CACHE_FILE ] )
+
+Construct a cache object. The CACHE_FILE is optional and will retain an 
+an in-memory cache if not provided.
+
+=cut
 
 sub new {
   my $class = shift;
@@ -24,6 +40,18 @@ sub new {
   return $obj;
 }
 
+=back
+
+=head1 METHODS
+
+=over 4
+
+=item lookup ( URL, REF )
+
+Looks up cached hash of the URL and REF.
+
+=cut
+
 sub lookup {
   my $self = shift;
   my ($url, $ref) = @_;
@@ -38,6 +66,12 @@ sub lookup {
   }
 }
 
+=item store ( URL, REF, HASH)
+
+Stores HASH for URL and REF.
+
+=cut
+
 sub store {
   my $self = shift;
   my ($url, $ref, $hash) = @_;
@@ -47,7 +81,13 @@ sub store {
   }
 }
 
-sub close {
+=item write()
+
+Writes the cache to disk.
+
+=cut
+
+sub write {
   my %self = shift;
   if (defined $self{cacheFile}) {
     open(my $fh, ">". $self{cacheFile})
