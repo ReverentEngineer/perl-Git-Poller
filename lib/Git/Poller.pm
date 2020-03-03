@@ -82,7 +82,6 @@ sub add {
 sub poll {
   my $self = shift;
   my @repos = @{$self->{repos}};
-  my $output = "";
   for (@repos) {
     my %repo = %$_;
     my $refs = Git::command("ls-remote", $repo{url});
@@ -92,19 +91,38 @@ sub poll {
       if ($newhash ne $oldhash) {
         my @cmds = @{ $repo{run} };
         my $tmpdir = tempdir();
-        $output .= Git::command(["clone", $repo{url}, "$tmpdir"], STDERR => 0);
+        my $log = "";
+        $log .= Git::command(["clone", $repo{url}, "$tmpdir"], STDERR => 0);
         chdir $tmpdir;
         my $repo = Git->repository($tmpdir);
+        my $commits = $repo->command("log", "--format='%h %s'", "$oldhash..$newhash");
+
+        my $status = "success";
         for (@cmds) {
           my $buffer = "";
-          my ($ok, $err, $fullbuf) = run(command => "$_", buffer => \$buffer);
-          $output .= $buffer;
+          my ($ok, $err) = run(command => "$_", buffer => \$buffer);
+          $log .= $buffer;
+          if (!$ok) {
+            $status = "failed";
+            last; 
+          }
         }
+
         $self->{cache}->store($repo{url}, $ref, $newhash);
+
+        # Mail, if enabled.
+        if (defined $self->{mailer} and defined $repo{mailing_list}) {
+          $self->{mailer}->send(
+            mailing_list => $repo{mailing_list},
+            status => $status,
+            commits => $commits,
+            log => $log
+          );
+        }
       }
     }
   }
-  return $output;
+  return 1;
 }
 
 1;
