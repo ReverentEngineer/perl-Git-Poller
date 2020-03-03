@@ -17,7 +17,7 @@ use Net::SMTP;
 
 Contruct a new mailer object.
 
-B<host> - Hostname of mail server
+B<smtp> - The SMTP connection
 
 B<send_from> - From address to use.
 
@@ -26,10 +26,9 @@ B<send_from> - From address to use.
 sub new {
   my $class = shift;
   my %config = @_;
-  my $conn = Net::SMTP->new($config{host});
   my $obj = {
-    conn => $conn,
-    send_from => $config{send_from});
+    conn => $config{smtp},
+    send_from => $config{send_from},
   };
   bless $obj, $class;
   return $obj;
@@ -59,8 +58,8 @@ sub send {
   my $self = shift;
   my %args = @_;
 
-  $self{conn}->mail($self{send_from});
-  if ($self{conn}->to($args{mailing_list})) {
+  $self->{conn}->mail($self->{send_from});
+  if ($self->{conn}->to($args{mailing_list})) {
 
   }
 }
