@@ -1,8 +1,11 @@
 use strict;
 use Test;
 use Git::Poller;
+use Git::Poller::Cache;
+use Git::Poller::Mailer;
 use Git;
 use File::Temp qw/tempdir/;
+use Test2::Mock;
 
 BEGIN { plan tests => 1 }
 
@@ -16,12 +19,23 @@ close($fh);
 $repo->command("add", "$tmpdir/testfile");
 $repo->command("commit", "-m", "test message");
 
+my $cache = Cache->new();
+
+my $mailer = Test2::Mock->new(
+  class => 'Git::Poller::Mailer',
+  add => [
+    send => sub { return 1;  }
+  ]
+);
+
 
 my $poller = Poller->new(
-  CacheFile => "./test_cache"
+  cache => $cache,
+  mailer => $mailer,
 );
+
+
 
 my @command = ("echo hi", "echo hello");
 $poller->add(url=>"$gitdir", watch=>"refs/heads/master", run=>\@command);
-
-ok($poller->poll(), "hi\nhello\n");
+ok($poller->poll(), 1);
